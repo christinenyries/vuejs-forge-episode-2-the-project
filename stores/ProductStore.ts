@@ -1,25 +1,26 @@
-import { defineStore, acceptHMRUpdate } from "pinia";
+import { Product } from "~/types";
 export const useProductStore = defineStore("ProductStore", {
   state: () => {
+    const route = useRoute();
     return {
       /**
        * The listing of all the products
        */
-      products: [],
+      products: [] as Product[],
 
       /**
        * Different ways of fetching the listing of products (filters, order, search)
        */
       filters: {
-        "fields.heatLevel": useRoute().query["fields.heatLevel"] || "",
-        order: useRoute().query.order || "",
-        query: useRoute().query.query || "",
+        "fields.heatLevel": route.query["fields.heatLevel"] || "",
+        order: route.query.order || "",
+        query: route.query.query || "",
       },
 
       /**
        * A single project to show all the details of
        */
-      singleProduct: null,
+      singleProduct: null as Product | null,
     };
   },
   getters: {
@@ -27,7 +28,7 @@ export const useProductStore = defineStore("ProductStore", {
       const clone = JSON.parse(JSON.stringify(this.filters));
       // remove blank object properties
       return Object.fromEntries(
-        Object.entries(clone).filter(([_, v]) => v != null)
+        Object.entries(clone).filter(([_, v]) => v != null && v !== "")
       );
     },
   },
@@ -38,10 +39,10 @@ export const useProductStore = defineStore("ProductStore", {
         content_type: "product",
         ...this.activeFilters,
       });
-      this.products = entries.items;
+      this.products = entries.items as Product[];
       return this.products;
     },
-    async fetchProduct(id) {
+    async fetchProduct(id: string) {
       const { $contentful } = useNuxtApp();
       this.singleProduct = await $contentful.getEntry(id);
       return this.singleProduct;
