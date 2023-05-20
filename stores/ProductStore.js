@@ -1,7 +1,7 @@
 import { defineStore, acceptHMRUpdate } from "pinia";
 export const useProductStore = defineStore("ProductStore", {
   state: () => {
-    // const route = useRoute();
+    const route = useRoute();
     return {
       /**
        * The listing of all the products
@@ -12,9 +12,9 @@ export const useProductStore = defineStore("ProductStore", {
        * Different ways of fetching the listing of products (filters, order, search)
        */
       filters: {
-        "fields.heatLevel": "",
-        order: "",
-        query: "",
+        "fields.heatLevel": route.query["fields.heatLevel"] || "",
+        order: route.query.order || "",
+        query: route.query.query || "",
       },
 
       /**
@@ -28,14 +28,17 @@ export const useProductStore = defineStore("ProductStore", {
       const clone = JSON.parse(JSON.stringify(this.filters));
       // remove blank object properties
       return Object.fromEntries(
-        Object.entries(clone).filter(([_, v]) => v != null)
+        Object.entries(clone).filter(([_, v]) => v != null && v !== "")
       );
     },
   },
   actions: {
     async fetchProducts() {
       const { $contentful } = useNuxtApp();
-      const entries = await $contentful.getEntries({ content_type: "product" });
+      const entries = await $contentful.getEntries({
+        content_type: "product",
+        ...this.activeFilters,
+      });
       this.products = entries.items;
       return this.products;
     },
