@@ -1,4 +1,4 @@
-import { defineStore, acceptHMRUpdate } from "pinia";
+import { Product } from "~/types";
 export const useProductStore = defineStore("ProductStore", {
   state: () => {
     const route = useRoute();
@@ -6,7 +6,7 @@ export const useProductStore = defineStore("ProductStore", {
       /**
        * The listing of all the products
        */
-      products: [],
+      products: [] as Product[],
 
       /**
        * Different ways of fetching the listing of products (filters, order, search)
@@ -20,7 +20,7 @@ export const useProductStore = defineStore("ProductStore", {
       /**
        * A single project to show all the details of
        */
-      singleProduct: null,
+      singleProduct: null as Product | null,
     };
   },
   getters: {
@@ -39,10 +39,10 @@ export const useProductStore = defineStore("ProductStore", {
         content_type: "product",
         ...this.activeFilters,
       });
-      this.products = entries.items;
+      this.products = entries.items as Product[];
       return this.products;
     },
-    async fetchProduct(id) {
+    async fetchProduct(id: string) {
       const { $contentful } = useNuxtApp();
       this.singleProduct = await $contentful.getEntry(id);
       return this.singleProduct;

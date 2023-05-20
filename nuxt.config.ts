@@ -9,6 +9,7 @@ export default defineNuxtConfig({
     dirs: ["stores"],
   },
   modules: [
+    "nuxt-lodash",
     "@nuxtjs/tailwindcss",
     "@formkit/nuxt",
     [
@@ -36,9 +37,9 @@ export default defineNuxtConfig({
 });
 
 function requireEnvVars() {
-  const map = {
-    "Deskree Project URL": process.env.NUXT_DESKREE_BASE_URL,
-    "Stripe secret token": process.env.STRIPE_SECRET,
+  const map: { [key: string]: string } = {
+    "Deskree Project URL": process.env.NUXT_DESKREE_BASE_URL || "",
+    "Stripe secret token": process.env.STRIPE_SECRET || "",
   };
   let ready = true;
   for (const label in map) {
