@@ -26,7 +26,7 @@ useAsyncData("products", async () => productStore.fetchProducts());
   </div>
 </template>
 
-<style>
+<style scoped>
 .product-card {
   transition: all 0.5s ease-in-out;
 }
