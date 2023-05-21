@@ -1,14 +1,16 @@
-import { defineNuxtConfig } from "nuxt";
+import { defineNuxtConfig } from "nuxt/config";
 
 requireEnvVars();
 
 // https://v3.nuxtjs.org/api/configuration/nuxt.config
 export default defineNuxtConfig({
   css: ["@/assets/main.css", "@formkit/themes/genesis"],
-  autoImports: {
+  imports: {
     dirs: ["stores"],
   },
   modules: [
+    "nuxt-lodash",
+    "@nuxtjs/tailwindcss",
     "@formkit/nuxt",
     [
       "@pinia/nuxt",
@@ -20,9 +22,9 @@ export default defineNuxtConfig({
   runtimeConfig: {
     stripeSecret: process.env.STRIPE_SECRET,
     public: {
-      contentfulSpace: "v7fvzlkum53d",
+      contentfulSpace: process.env.NUXT_CONTENTFUL_SPACE,
       contentfulPublicAccessToken:
-        "dG3pVWxjHUEzLX0Xga4muaYMPWj0wEQ74RVKzZbMRX8",
+        process.env.NUXT_CONTENTFUL_PUBLIC_ACCESS_TOKEN,
       deskreeBaseUrl: process.env.NUXT_DESKREE_BASE_URL,
     },
   },
@@ -31,21 +33,13 @@ export default defineNuxtConfig({
       process.env.npm_lifecycle_script === "nuxt generate"
         ? ["contentful"]
         : [],
-    postcss: {
-      postcssOptions: {
-        plugins: {
-          tailwindcss: {},
-          autoprefixer: {},
-        },
-      },
-    },
   },
 });
 
 function requireEnvVars() {
-  const map = {
-    "Deskree Project URL": process.env.NUXT_DESKREE_BASE_URL,
-    "Stripe secret token": process.env.STRIPE_SECRET,
+  const map: { [key: string]: string } = {
+    "Deskree Project URL": process.env.NUXT_DESKREE_BASE_URL || "",
+    "Stripe secret token": process.env.STRIPE_SECRET || "",
   };
   let ready = true;
   for (const label in map) {

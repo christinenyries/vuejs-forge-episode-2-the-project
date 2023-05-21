@@ -111,8 +111,11 @@ export function useDeskree() {
       });
     },
     async getCart() {
-      if (!loggedInUser.value || !tokenInLocalStorage.value) return;
-      const res = await dbRestRequest(`carts/${loggedInUser.value.cartId}`);
+      if (!loggedInUser.value || !loggedInUser.value.cartId) return;
+      const res = await dbRestRequest(
+        `/carts/${loggedInUser.value.cartId}`,
+        "GET"
+      );
       res.data.products = JSON.parse(res.data.products);
       return res.data;
     },
