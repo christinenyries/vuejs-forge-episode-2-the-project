@@ -1,21 +1,46 @@
+import { watchDebounced } from "@vueuse/core";
 import { Product } from "~/types";
 
 export const useCartStore = defineStore("CartStore", () => {
+  const taxRate = 0.1;
+  const deskree = useDeskree();
   const items = ref<Product[]>([]);
+  const isCartInitialized = ref(false);
+
+  // getters
   const count = computed(() => items.value.length);
+  const isEmpty = computed(() => count.value === 0);
   const subtotal = computed(() =>
     items.value.reduce((_subtotal, item) => _subtotal + item.fields.price, 0)
   );
-  const taxTotal = computed(() => subtotal.value * 0.1);
+  const taxTotal = computed(() => subtotal.value * taxRate);
   const total = computed(() => subtotal.value + taxTotal.value);
+
   const itemsById = computed(() =>
     useGroupBy(items.value, (item) => item.sys.id)
   );
   const itemsByIdCount = computed(
     () => (id: string) => itemsById.value[id].length
   );
-  const isEmpty = computed(() => count.value === 0);
 
+  watchDebounced(
+    items,
+    () => {
+      if (!isCartInitialized.value) return;
+      deskree.user.updateCart(items.value);
+    },
+    { deep: true, debounce: 500 }
+  );
+
+  deskree.auth.onAuthStateChange(async (user: any) => {
+    if (!user) return;
+    const res = await deskree.user.getCart();
+    items.value = res.products;
+    // wait for watchDebounced above to process new value for `items` before updating `isCartInitialized`
+    setTimeout(() => (isCartInitialized.value = true), 750);
+  });
+
+  // actions
   function addItem(item: Product, count = 1) {
     for (let i = 0; i < count; i++) {
       items.value.push(item);
