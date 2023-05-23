@@ -1,4 +1,5 @@
 import { Asset, Entry } from "contentful";
+
 type _Product = {
   name: string;
   summary: string;
@@ -9,3 +10,13 @@ type _Product = {
 };
 
 export type Product = Entry<_Product>;
+
+export type Review = {
+  uid: string;
+  attributes: {
+    rating: number;
+    createdAt: string;
+    title: string;
+    text: string;
+  };
+};

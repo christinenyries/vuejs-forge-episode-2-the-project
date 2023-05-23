@@ -21,3 +21,23 @@ content-type: application/json
   "updated": 1652290426,
   "url": null
 }
+
+###
+
+POST https://vuejs-e-commerce.api.deskree.com/api/v1/rest/collections/reviews HTTP/1.1
+Authorization: Bearer ${{$dotenv SAMPLE_DESKREE_USER_TOKEN}}
+content-type: application/json
+
+{
+	"product_id": "6kVqlh9xQr4tsb0w3prI8n",
+	"rating": "5",
+	"text": "It tasted great",
+	"title": "The best"
+}
+
+###
+
+
+GET https://vuejs-e-commerce.api.deskree.com/api/v1/rest/collections/reviews/?where=[{"attribute":"product_id","operator":"==","value":"6kVqlh9xQr4tsb0w3prI8n"}]&sorted[param]=createdAt&sorted[how]=desc HTTP/1.1
+Authorization: Bearer ${{$dotenv SAMPLE_DESKREE_USER_TOKEN}}
+content-type: application/json

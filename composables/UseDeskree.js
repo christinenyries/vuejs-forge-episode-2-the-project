@@ -125,11 +125,24 @@ export function useDeskree() {
    * Reviews functions exposed from the composable
    */
   const reviews = {
-    get(productId) {
+    async get(productId) {
       // make request to get reviews for a product here
+      const where = [
+        { attribute: "product_id", operator: "==", value: productId },
+      ];
+      return await dbRestRequest(
+        `/reviews?where=${JSON.stringify(
+          where
+        )}&sorted[param]=createdAt&sorted[how]=desc`
+      );
     },
     submit({ text, rating, title, product_id }) {
-      // make request to add a new review here
+      return dbRestRequest(`/reviews/`, "POST", {
+        product_id,
+        rating: parseInt(rating),
+        text,
+        title,
+      });
     },
   };
 
