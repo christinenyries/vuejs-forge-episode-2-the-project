@@ -3,9 +3,9 @@ defineProps({
   heatLevel: String,
 });
 const heatMap = {
-  Hot: "🔥🔥🔥",
-  Medium: "🔥🔥",
   Mild: "🔥",
+  Medium: "🔥🔥",
+  Hot: "🔥🔥🔥",
 };
 </script>
 <template>

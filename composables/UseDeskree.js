@@ -111,8 +111,11 @@ export function useDeskree() {
       });
     },
     async getCart() {
-      if (!loggedInUser.value || !tokenInLocalStorage.value) return;
-      const res = await dbRestRequest(`carts/${loggedInUser.value.cartId}`);
+      if (!loggedInUser.value || !loggedInUser.value.cartId) return;
+      const res = await dbRestRequest(
+        `/carts/${loggedInUser.value.cartId}`,
+        "GET"
+      );
       res.data.products = JSON.parse(res.data.products);
       return res.data;
     },
@@ -122,22 +125,23 @@ export function useDeskree() {
    * Reviews functions exposed from the composable
    */
   const reviews = {
-    get(productId) {
+    async get(productId) {
+      // make request to get reviews for a product here
       const where = [
-        {
-          attribute: "product_id",
-          operator: "=",
-          value: productId,
-        },
+        { attribute: "product_id", operator: "==", value: productId },
       ];
-      return dbRestRequest(`/reviews?where=${JSON.stringify(where)}`);
+      return await dbRestRequest(
+        `/reviews?where=${JSON.stringify(
+          where
+        )}&sorted[param]=createdAt&sorted[how]=desc`
+      );
     },
     submit({ text, rating, title, product_id }) {
-      return dbRestRequest("/reviews", "POST", {
-        text,
-        rating: Number(rating),
-        title,
+      return dbRestRequest(`/reviews/`, "POST", {
         product_id,
+        rating: parseInt(rating),
+        text,
+        title,
       });
     },
   };
