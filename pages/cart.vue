@@ -1,9 +1,30 @@
-<script setup>
+<script setup lang="ts">
 const cartStore = useCartStore();
-const selected = ref([]);
-const checkAll = ref();
+const selected = ref<string[]>([]);
+const checkAll = ref<HTMLInputElement | null>();
+
 async function handleCheckout() {
-  console.log("checking out");
+  const products = Object.keys(cartStore.itemsById).reduce((acc, id) => {
+    acc[id] = { quantity: cartStore.getItemCountById(id) };
+    return acc;
+  }, {} as { [id: string]: { quantity: number } });
+  const res = await $fetch("/api/cart", {
+    method: "POST",
+    body: {
+      products,
+    },
+  });
+  if (res.url) {
+    window.location.href = res.url;
+  }
+}
+
+function handleCheckAll() {
+  if (checkAll.value?.checked) {
+    selected.value = Object.keys(cartStore.itemsById);
+  } else {
+    selected.value = [];
+  }
 }
 </script>
 <template>
@@ -22,7 +43,12 @@ async function handleCheckout() {
                 <tr>
                   <th>
                     <label>
-                      <input type="checkbox" class="checkbox" ref="checkAll" />
+                      <input
+                        type="checkbox"
+                        class="checkbox"
+                        ref="checkAll"
+                        @change="handleCheckAll"
+                      />
                     </label>
                   </th>
                   <th></th>
@@ -40,7 +66,7 @@ async function handleCheckout() {
                         v-model="selected"
                         type="checkbox"
                         class="checkbox"
-                        @change="checkAll.checked = false"
+                        @change="checkAll && (checkAll.checked = false)"
                         :value="id"
                       />
                     </label>
@@ -51,9 +77,7 @@ async function handleCheckout() {
                         <div class="mask mask-squircle w-12 h-12">
                           <img
                             :src="items[0].fields.image[0].fields.file.url"
-                            :alt="
-                              items[0].fields.image[0].fields?.file.description
-                            "
+                            :alt="items[0].fields.image[0].fields?.description"
                           />
                         </div>
                       </div>
@@ -73,9 +97,13 @@ async function handleCheckout() {
                     <input
                       class="input input-bordered w-20"
                       type="number"
-                      :value="cartStore.itemsByIdCount(id)"
+                      :value="cartStore.getItemCountById(id)"
                       @input="
-                        cartStore.updateItemCount(items[0], $event.target.value)
+                        $event.target &&
+                          cartStore.updateItemCount(
+                            items[0],
+                            +($event.target as HTMLInputElement).value
+                          )
                       "
                     />
                   </td>
@@ -96,7 +124,7 @@ async function handleCheckout() {
               v-if="selected.length"
               class="text-sm text-red-500"
               @click="
-                cartStore.removeProducts(selected);
+                selected.forEach((s) => cartStore.clearItem(s));
                 selected = [];
               "
             >

@@ -20,3 +20,5 @@ export type Review = {
     text: string;
   };
 };
+
+export type Status = "unloaded" | "loading" | "loaded" | "errors";
